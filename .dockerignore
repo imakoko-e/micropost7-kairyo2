@@ -1,0 +1,31 @@
+# dockerで無視するファイルを指定する
+
+#---ディレクトリ
+.git
+temp_DB
+postgres_data
+log/*           # ログファイルのみ除外（ディレクトリは残す）
+tmp/*
+!tmp/pids
+storage/*
+storage_data/*
+
+#---ファイル
+.dockerignore
+.gitattributes
+Gemfile元
+Guardfle元
+Dockerfile
+docker-compose.yml
+
+#---- 追加
+.bundle
+.env
+.env.*
+node_modules
+log/*
+config/master.key
+config/credentials/*.key
+*.log
+*.tar
+

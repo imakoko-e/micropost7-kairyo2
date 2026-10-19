@@ -1,0 +1,5 @@
+<%= form_with(model: current_user.active_relationships.find_by(followed: @user),
+              html: { method: :delete }) do |f| %>
+  <%# DELETE で relationships#destroy へ送り、フォローを解除する %>
+  <%= f.submit "フォローを解除する", class: "btn" %>
+<% end %>

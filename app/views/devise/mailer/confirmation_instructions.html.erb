@@ -1,0 +1,13 @@
+<%# 「アカウント認証」時のメール用メッセージ %>
+
+<p>ようこそ　 <%= @user.name %>　さん</p>
+
+<p>あなたの登録したアドレスにメールを送信しました。</p>
+<br>
+<p>以下のリンクをクリックし、アカウントを有効にしてください。</p>
+
+<p>
+  <%# 確認のリンクは新しいタブで開く。待機していたタブへは Action Cable で「引換券」（handoff）を送ってログインさせる %>
+  <%= link_to 'アカウントを有効にする', user_confirmation_url(confirmation_token: @token), target: "_blank", rel: "noopener", data: { turbo: false } %>
+
+</p>

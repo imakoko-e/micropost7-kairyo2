@@ -1,0 +1,465 @@
+@import "tailwindcss";
+
+/* ============================================================
+   container ユーティリティのカスタマイズ
+   max-width を Bootstrap の xl 幅（1140px）に揃え、
+   左右パディングで内側の余白を確保する。
+   ============================================================ */
+@utility container {
+  width: 100%;
+  max-width: 1140px;
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+
+/* ============================================================
+   @layer base: ブラウザデフォルトの見出しスタイルを復元
+   Tailwind preflight がリセットするため、明示的に定義する。
+   Bootstrap 5 のデフォルト見出しサイズに準拠。
+   ============================================================ */
+@layer base {
+  h1 { @apply text-4xl font-bold leading-tight; }
+  h2 { @apply text-3xl font-bold leading-tight; }
+  h3 { @apply text-2xl font-bold leading-tight; }
+  h4 { @apply text-xl  font-bold leading-tight; }
+  h5 { @apply text-lg  font-bold leading-tight; }
+  h6 { @apply text-base font-bold leading-tight; }
+
+  /* リンクの文字色をブルーに統一（ナビやドロップダウン等、明示的な色クラスを持つ要素は上書きされない） */
+  a {
+    color: var(--color-blue-600);
+  }
+}
+
+/* ============================================================
+   グローバルスタイル
+   ============================================================ */
+
+/* 固定ヘッダー（h-14 = 56px）分のオフセット */
+body {
+  padding-top: 3.5rem;
+}
+
+/* リンクの装飾リセット */
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   @layer components: 再利用コンポーネント定義
+   ============================================================ */
+@layer components {
+
+  /* ----------------------------------------------------------
+     ナビゲーション
+  ---------------------------------------------------------- */
+
+  /* ナビゲーションバーのアクティブリンク：白いアンダーラインで現在ページを示す */
+  .nav-link.active {
+    @apply border-b-2 border-white;
+  }
+
+  /* ============================================================
+     ボタン
+     共通: cursor-pointer、インライン表示、角丸
+  ============================================================ */
+
+  /* 基底ボタン（バリアント未指定の btn クラス単体）*/
+  .btn {
+    @apply inline-block px-4 py-2 border border-gray-400 text-gray-700 rounded
+           hover:bg-gray-100 cursor-pointer text-center no-underline;
+  }
+
+  /* プライマリボタン（登録・送信・投稿等の主アクション）*/
+  .btn-primary {
+    @apply inline-block px-4 py-2 bg-blue-600 text-white rounded
+           hover:bg-blue-700 cursor-pointer text-center no-underline;
+  }
+
+  /* セカンダリボタン（削除・補助アクション）*/
+  .btn-secondary {
+    @apply inline-block px-4 py-2 bg-gray-500 text-white rounded
+           hover:bg-gray-600 cursor-pointer text-center no-underline;
+  }
+
+  /* 危険ボタン（破壊的操作用）*/
+  .btn-danger {
+    @apply inline-block px-4 py-2 bg-red-600 text-white rounded
+           hover:bg-red-700 cursor-pointer text-center no-underline;
+  }
+
+  /* アウトラインボタン（プライマリ）*/
+  .btn-outline-primary {
+    @apply inline-block px-4 py-2 border border-blue-600 text-blue-600 rounded
+           hover:bg-blue-50 cursor-pointer text-center no-underline;
+  }
+
+  /* アウトラインボタン（セカンダリ）*/
+  .btn-outline-secondary {
+    @apply inline-block px-4 py-2 border border-gray-400 text-gray-600 rounded
+           hover:bg-gray-100 cursor-pointer text-center no-underline;
+  }
+
+  /* ============================================================
+     フォーム
+  ============================================================ */
+
+  /* テキスト・メール・パスワード等の入力欄 */
+  .form-control {
+    @apply w-full border border-gray-400 rounded px-3 py-2
+           text-black placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+  }
+
+  /* セレクトボックス */
+  .form-select {
+    @apply w-full border border-gray-400 rounded px-3 py-2 bg-white text-black
+           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+  }
+
+  /* 入力欄下のヒントテキスト */
+  .form-text {
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  /* チェックボックス・ラジオボタン本体 */
+  .form-check-input {
+    @apply w-4 h-4 cursor-pointer accent-blue-600;
+  }
+
+  /* チェックボックス・ラジオボタンのラベル */
+  .form-check-label {
+    @apply ml-2 cursor-pointer;
+  }
+
+  /* インライン配置のチェックボックス・ラジオグループ */
+  .form-check-inline {
+    @apply inline-flex items-center mr-4;
+  }
+
+  /* グリッドフォームの右寄せラベル（profiles/edit 等）*/
+  .col-form-label {
+    @apply flex items-center py-2;
+  }
+
+  /* 入力欄＋ボタン連結（郵便番号検索等）*/
+  .input-group {
+    @apply flex items-stretch;
+  }
+  .input-group .form-control {
+    @apply rounded-r-none border-r-0;
+  }
+  .input-group .btn-secondary {
+    @apply rounded-l-none;
+  }
+
+  /* フォームフィールドのラッパー */
+  .field {
+    @apply mb-3;
+  }
+
+  /* バリデーションエラー時の入力欄ハイライト */
+  .field_with_errors input,
+  .field_with_errors select,
+  .field_with_errors textarea {
+    @apply border-red-500 ring-1 ring-red-500;
+  }
+
+  /* ============================================================
+     アラート・フラッシュメッセージ
+  ============================================================ */
+
+  .alert-success {
+    @apply bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded mb-4;
+  }
+
+  .alert-danger {
+    @apply bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded mb-4;
+  }
+
+  .alert-warning {
+    @apply bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4;
+  }
+
+  .alert-info {
+    @apply bg-blue-100 border border-blue-400 text-blue-800 px-4 py-3 rounded mb-4;
+  }
+
+  /* ============================================================
+     カード
+  ============================================================ */
+
+  /* カードコンテナ（profiles/show、pages/mail_check 等）*/
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  /* ============================================================
+     パネル（情報ボックス）
+     Bootstrap の bg-light + padding + rounded に相当
+     使用: static_pages/home.html.erb
+  ============================================================ */
+  .panel {
+    @apply bg-gray-100 p-8 mb-4 rounded;
+  }
+
+  /* ============================================================
+     ページネーション（will_paginate 用）
+  ============================================================ */
+
+  /* コンテナ */
+  .pagination {
+    @apply flex flex-wrap justify-center gap-1 my-4;
+  }
+
+  /* 各ページリンク・スパン */
+  .pagination a,
+  .pagination span {
+    @apply px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 no-underline
+           hover:bg-blue-600 hover:text-white hover:border-blue-600;
+  }
+
+  /* 現在ページ */
+  .pagination .current {
+    @apply px-3 py-1 bg-blue-600 text-white border-blue-600 rounded text-sm font-semibold;
+  }
+
+  /* 非活性（前へ・次へが使えない場合）*/
+  .pagination .disabled,
+  .pagination .disabled span {
+    @apply px-3 py-1 text-gray-400 bg-gray-100 border-gray-200 rounded text-sm cursor-not-allowed;
+  }
+
+  /* ============================================================
+     アプリ固有スタイル（application.scss から移植）
+  ============================================================ */
+
+  /* --- マイクロポスト一覧 ---
+     使用: users/show.html.erb、static_pages/home.html.erb */
+  .microposts {
+    @apply list-none p-0;
+  }
+  .microposts li {
+    @apply py-3 border-t border-gray-200;
+  }
+  .microposts .user {
+    @apply mt-20 pt-0;
+  }
+  .microposts .content {
+    @apply block ml-16;
+  }
+  .microposts .content img {
+    @apply block py-1;
+  }
+  .microposts .timestamp {
+    @apply block ml-16 text-xs text-gray-500;
+  }
+  .microposts .gravatar {
+    @apply float-left mr-3 mt-1;
+  }
+
+  /* --- フォロー統計エリア ---
+     使用: shared/_stats.html.erb、users/show_follow.html.erb */
+  .stats {
+    @apply overflow-auto mt-0 p-0;
+  }
+  .stats a {
+    @apply float-left px-3 text-blue-600 border-l border-gray-200
+           hover:text-blue-800 no-underline;
+  }
+  .stats a:first-child {
+    @apply pl-0 border-l-0;
+  }
+  .stats strong {
+    @apply block;
+  }
+
+  /* --- ユーザーアバター一覧 ---
+     使用: users/show_follow.html.erb */
+  .user_avatars {
+    @apply overflow-auto mt-3;
+  }
+  .user_avatars .gravatar {
+    @apply m-px;
+  }
+  .user_avatars a {
+    @apply p-0;
+  }
+
+  /* --- ユーザー一覧リスト ---
+     使用: users/index.html.erb */
+  .users {
+    @apply list-none m-0 p-0;
+  }
+  .users li {
+    @apply overflow-auto py-3 border-b border-gray-100;
+  }
+  .users.follow {
+    @apply p-0;
+  }
+
+  /* --- サイドバー ---
+     使用: 各 show / show_follow ページ */
+  .gravatar {
+    @apply float-left mr-3;
+  }
+  .gravatar_edit {
+    @apply mt-4;
+  }
+
+  /* --- 小フォントサイズリスト（システム履歴）---
+     現在 custom.scss にある .fontsize1-list から移植
+     使用: static_pages/home.html.erb */
+  .fontsize1-list {
+    @apply text-[0.8rem] leading-normal mb-0 pl-2;
+  }
+
+  /* --- エラー表示 --- */
+  #error_explanation {
+    @apply text-red-600;
+  }
+  #error_explanation ul {
+    @apply text-red-600 mt-0 mb-5;
+  }
+  .error_message {
+    @apply text-red-600;
+  }
+
+  /* --- セクション --- */
+  section {
+    @apply overflow-auto;
+  }
+
+  /* --- テキストエリア --- */
+  textarea {
+    @apply resize-y;
+  }
+
+  /* --- aside サイドバー --- */
+  aside section.user_info {
+    @apply mt-5;
+  }
+  aside section {
+    @apply py-3 mt-5;
+  }
+  aside section:first-child {
+    @apply border-0 pt-0;
+  }
+  aside section span {
+    @apply block mb-1 leading-none;
+  }
+  aside section h1 {
+    @apply text-xl text-left tracking-tight mb-1 mt-0;
+  }
+  aside textarea {
+    @apply h-24 mb-1;
+  }
+
+  /* --- フォームの画像アップロード欄 --- */
+  span.image {
+    @apply mt-3 block;
+  }
+
+  /* ファイル選択ボタンをアウトラインボタン風にスタイリング
+     ::file-selector-button は input[type="file"] の「ファイルを選択」部分 */
+  input[type="file"] {
+    @apply block w-full text-sm text-gray-600 mt-2 cursor-pointer;
+  }
+  input[type="file"]::file-selector-button {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    margin-right: 0.75rem;
+    border: 1px solid rgb(156 163 175);
+    border-radius: 0.25rem;
+    background-color: white;
+    color: rgb(75 85 99);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  input[type="file"]::file-selector-button:hover {
+    background-color: rgb(243 244 246);
+  }
+
+  /* --- デバッグダンプ --- */
+  .debug_dump {
+    @apply clear-both float-left w-full mt-12;
+  }
+
+  /* --- Google ログインエリア --- */
+  .google-login {
+    @apply my-2;
+  }
+
+  /* ============================================================
+     ユーザー情報変更フォーム専用スタイル（profiles/edit）
+  ============================================================ */
+
+  /* セクション見出しブロック
+     ・モバイル：アイコン＋テキスト横並び、下ボーダーで区切り
+     ・lg以上 ：縦積み中央寄せ、固定幅、右ボーダーで区切り（横表示） */
+  .profile-section-head {
+    @apply flex items-center gap-2 pb-3 mb-5 border-b-2 border-blue-100
+           lg:flex-col lg:items-center lg:text-center
+           lg:w-32 lg:shrink-0
+           lg:pb-0 lg:mb-0
+           lg:border-b-0 lg:border-r-2 lg:pr-6;
+  }
+  .profile-section-icon {
+    @apply text-blue-500 text-2xl lg:text-4xl lg:mb-2;
+  }
+  .profile-section-name {
+    @apply text-sm font-bold text-blue-700 uppercase tracking-wide
+           leading-snug;
+  }
+
+  /* フォームグリッド：ラベル列固定 7rem + 入力列伸縮
+     sm 未満はラベルを上段に積む1カラム表示 */
+  .profile-form-grid {
+    @apply grid gap-y-4 gap-x-4 grid-cols-1;
+  }
+  @media (min-width: 480px) {
+    .profile-form-grid {
+      grid-template-columns: 7rem 1fr;
+    }
+  }
+
+  /* ラベルセル：テキストを入力欄の中央に揃える */
+  .profile-form-label {
+    @apply flex items-center font-semibold text-sm text-gray-600 pt-0.5;
+  }
+
+  /* 必須バッジ */
+  .badge-required {
+    @apply inline-block text-[0.6rem] font-semibold bg-red-100 text-red-600
+           px-1.5 py-0.5 rounded ml-1.5 leading-none align-middle;
+  }
+
+  /* 任意バッジ */
+  .badge-optional {
+    @apply inline-block text-[0.6rem] font-semibold bg-gray-100 text-gray-400
+           px-1.5 py-0.5 rounded ml-1.5 leading-none align-middle;
+  }
+
+  /* --- ドロップダウンメニュー内リンクはグレー系を維持 ---
+     グローバル a { color: blue } が波及しないよう明示上書き */
+  [data-dropdown-target="menu"] a {
+    @apply text-gray-700;
+  }
+
+  /* --- Bootstrap Icons サイズ調整 ---
+     _page.scss から移植。Bootstrap Icons は CDN で継続利用。
+     使用: pages/mail_check.html.erb */
+  .bi-envelope-check,
+  .bi-exclamation-circle {
+    font-size: 3rem;
+  }
+
+} /* end @layer components */

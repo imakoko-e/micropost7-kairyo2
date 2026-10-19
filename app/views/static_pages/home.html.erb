@@ -1,0 +1,112 @@
+<%# ログイン済みの場合：サイドバー＋フィードのレイアウト %>
+<% if user_signed_in? %>
+  <div class="container mt-6 pb-10">
+    <div class="flex flex-wrap">
+      <aside class="w-full md:w-1/3 pr-4">
+        <section class="user_info">
+          <%= render 'shared/user_info' %>
+        </section>
+        <section class="stats mt-4">
+          <%= render 'shared/stats' %>
+        </section>
+        <section class="micropost_form mt-4">
+          <%= render 'shared/micropost_form' %>
+        </section>
+      </aside>
+
+      <%# フィード %>
+      <div class="w-full md:w-2/3">
+        <h2 class="mb-6 text-center">マイクロポスト・フィード</h2>
+        <%= render 'shared/feed' %>
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <%# ログイン前：ログインフォームとシステム変更履歴の2カラム %>
+  <div class="container mt-6 pb-10">
+    <div class="flex flex-wrap gap-4">
+
+      <%# 左側：ログインエリア %>
+      <div class="w-full md:w-[48%]">
+        <div class="panel">
+          <h2 class="mb-6 text-center">ログイン</h2>
+
+          <%= form_with(model: @user, url: user_session_path, local: true, builder: ApplicationHelper::CustomFormBuilder) do |f| %>
+            <%= render "devise/shared/error_messages", resource: f.object %>
+
+            <%= f.label :email %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control' %>
+
+            <%= f.label :password %>
+            <%= link_to "（パスワードを忘れた方はこちらへ）", new_user_password_path %>
+            <%= f.password_field :password, class: 'form-control' %>
+
+            <%# Devise の画面ではないので、devise_mapping をここで用意する %>
+            <% devise_mapping = Devise.mappings[:user] %>
+            <% if devise_mapping.rememberable? %>
+              <div class="flex items-center mt-3">
+                <%= f.check_box :remember_me, class: 'form-check-input' %>
+                <%= f.label :remember_me, class: 'form-check-label' do %>
+                  <span>次回から自動でログイン</span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div class="mt-6 flex justify-center">
+              <%= f.submit "ログイン", class: "btn btn-primary min-w-40 px-6 text-center" %>
+            </div>
+          <% end %>
+
+          <hr class="my-4 border-gray-300">
+          <%# Google ログイン %>
+          <div class="google-login text-center">
+            <p>またはGoogleアカウントでログイン 😊</p>
+            <div class="mt-3 flex justify-center">
+              <%= button_to "Googleでログイン", user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: false }, class: "btn btn-outline-primary min-w-40 px-6 text-center" %>
+            </div>
+          </div>
+          <hr class="my-4 border-gray-300">
+          <p>アカウントをお持ちでない方（新規の方）は<br>
+            <%= link_to "サインアップ（ユーザー登録）へ", new_user_registration_path %>
+          </p>
+          <hr class="my-4 border-gray-300">
+          <p>新規ページ・ウィンドウ　テスト<br>
+            <%= link_to "Page Window", page_mail_check_path %>
+          </p>
+        </div>
+      </div>
+
+      <%# 右側：システム変更履歴エリア %>
+      <div class="w-full md:w-[48%]">
+        <div class="panel">
+          <h2 class="mb-6 text-center">システム変更履歴</h2>
+          <ul class="fontsize1-list">
+            <li>2022年07月　Windows10のWSL2(Ubuntu)を使ってRails環境を構築</li>
+            <li>2023年04月　Railsチュートリアル（第６版）完了　···　（１周目）</li>
+            <li>2023年07月　Railsチュートリアル（第７版）完了　···　（２周目）</li>
+            <li>----- チュートリアルAPPの改良 -----</li>
+            <li>2023年08月　Bootstrap5対応、message日本語化</li>
+            <li>2023年09月　letter_opener_webインストール、ユーザー登録後に自動ログイン設定、Deviseインストール</li>
+            <li>---------</li>
+            <li>2024年02月　Devise対応完了、Herokuにデプロイ完了（画像はAWS）</li>
+            <li>2024年03月　エラーメッセージのフィールドごとの個別表示対応、MySQL導入、rbenv・ruby最新バージョンへ</li>
+            <li>2024年05月　統合開発環境（IDE）にRubyMine導入</li>
+            <li>---------</li>
+            <li>2024年06月　Railsチュートリアル（第７版）第7章まで　（３周目）</li>
+            <li>2024年07月　さくらのVPS契約、Ubuntu、PostgreSQL</li>
+            <li>2025年03月　Docker対応、さくらのVPSデプロイ完了</li>
+            <li>2025年04月　OmniAuthによるGoogleログインの導入</li>
+            <li>2025年05月　メール認証後の自動画面遷移 &lt;-ActionCable(Websocket)</li>
+            <li>2025年06月　WebサーバーにNginx導入</li>
+            <li>2025年09月　メール認証後の自動画面遷移（自動ログインのバグ修正）</li>
+            <li>2025年10月　アカウントメニュー修正、ユーザー情報充実と入出力</li>
+            <li>2026年03月　テストをRSpecに移行（Minitestの削除）</li>
+            <li>2026年04月　Tailwind CSS v4 への完全移行（Bootstrap5 削除）</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<% end %>

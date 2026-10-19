@@ -1,0 +1,15 @@
+<%# 投稿フォーム %>
+  <%= form_with(model: @micropost, builder: ApplicationHelper::CustomFormBuilder ) do |f| %>
+    <%= render 'shared/error_messages', object: f.object %>
+
+    <div class="field">
+      <%= f.text_area :content, placeholder: "新しい投稿を書きます...", class: "form-control", rows: 5 %>
+    </div>
+    <%= f.submit "投稿する", class: "btn btn-primary w-full mt-1" %>
+
+    <%# 画像（jpeg・gif・png だけを選べるようにする） %>
+    <span class="image">
+      <%= f.file_field :image, accept: "image/jpeg,image/gif,image/png" %>
+
+    </span>
+  <% end %>

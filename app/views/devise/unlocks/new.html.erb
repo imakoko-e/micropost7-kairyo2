@@ -1,0 +1,24 @@
+<% provide(:title, "Log in") %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">ロック解除メール再送信</h2>
+
+  <div class="flex justify-center">
+    <div class="w-full md:w-1/2">
+      <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }, builder: ApplicationHelper::CustomFormBuilder) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <div class="field">
+          <%= f.label :email %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control' %>
+        </div>
+
+        <div class="mt-6 flex justify-center">
+          <%= f.submit "ロック解除メールを再送信する", class: "btn btn-primary min-w-40 px-6 text-center" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render "devise/shared/links" %>
+</div>

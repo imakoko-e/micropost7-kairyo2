@@ -1,0 +1,25 @@
+# Dockerfile.local
+# 開発用。本番用の Dockerfile とは別のファイル。
+# docker-compose.local.yml から使う。ソースはビルドに含めず、起動時に /app へ読み込む。
+FROM ruby:3.3.7
+
+# gem のビルドと、PostgreSQL・SQLite（テスト）・画像の処理に要るもの
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+      build-essential libpq-dev postgresql-client libyaml-dev libsqlite3-dev imagemagick tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+# ホストと同じ UID・GID のユーザーで動かす（コンテナが作ったファイルを root の持ち物にしない）
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g "${GID}" app && \
+    useradd -m -u "${UID}" -g "${GID}" app && \
+    mkdir -p /app && chown app:app /app /usr/local/bundle
+
+ENV TZ=Asia/Tokyo \
+    LANG=C.UTF-8
+
+USER app
+WORKDIR /app
+EXPOSE 3000
+CMD ["bin/dev"]

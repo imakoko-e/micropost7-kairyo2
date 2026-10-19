@@ -1,0 +1,13 @@
+<%# 「メールアドレス変更」時のメール用メッセージ %>
+
+<p>こんにちは　 <%= @user.name %>　さん,</p>
+
+<% if @resource.try(:unconfirmed_email?) %>
+
+  <p>メールアドレスが　<%= @resource.unconfirmed_email %>　に変更になりましたのでご連絡いたします。</p>
+
+<% else %>
+
+  <p>メールアドレスが　<%= @resource.email %>　に変更になりましたのでご連絡いたします。</p>
+
+<% end %>

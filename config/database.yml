@@ -1,0 +1,31 @@
+default: &default
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>   # コネクションプールの数（最大接続数）
+  timeout: 5000   # コネクションタイムアウトの時間（ミリ秒単位）。PostgreSQL では使われない
+
+# Warning: 「test 」として定義されたデータベースは、「rake 」を実行すると消去され、
+# 開発用データベースから再 生成されます。
+# このデータベースは開発用や本番用と同じにしないでください。
+test:
+  <<: *default          # default設定を引き継ぐ
+  adapter: sqlite3      # データベースアダプタ（使用するDBの種類）
+  database: db/test.sqlite3     # テスト用データベース名
+
+development:
+  <<: *default          # default設定を引き継ぐ
+  encoding: unicode     # データベースのエンコーディング
+  adapter: postgresql   # データベースアダプタ（使用するDBの種類）
+  port: 5432            # データベースのポート番号 # コンテナの公開ポート
+  # Docker で動かすときは、compose が DATABASE_HOST などを渡す
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>       # データベースホスト ／コンテナ外からアクセスするためには "localhost" か "127.0.0.1" を指定
+  database: my_database_development     # 開発用データベース名
+  username: <%= ENV.fetch("DATABASE_USERNAME", "postgres") %>      # デフォルトユーザー名
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+
+
+# データベースを本番向けに設定
+production:
+  <<: *default          # default設定を引き継ぐ
+  # DATABASE_URL（環境変数）を本番では使う。database.yml は全環境分が ERB 評価されるため、
+  # 開発起動時もこの行が実行される。未設定でも落ちないよう ENV[] で読む
+  url: <%= ENV["DATABASE_URL"] %>
+

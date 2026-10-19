@@ -1,0 +1,10 @@
+<%# フィード（自分とフォローしている人の投稿） %>
+<% if @feed_items.any? %>
+  <ol class="microposts">
+    <%= render @feed_items %>   <%# 1件ずつ microposts/_micropost で表示する %>
+  </ol>
+
+  <%# 投稿に失敗して microposts#create から描いたときも、ページのリンクが Home を指すようにする %>
+  <%= will_paginate @feed_items, previous_label: '&lt 前へ', next_label: '次へ &gt',
+                    params: { controller: :static_pages, action: :home } %>
+<% end %>

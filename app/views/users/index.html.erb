@@ -1,0 +1,13 @@
+<% provide(:title, 'All users') %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">ユーザー 一覧</h2>
+
+  <%= will_paginate  previous_label: '&lt 前へ', next_label: '次へ &gt' %>
+
+  <ul class="users">
+    <%= render @users %>
+  </ul>
+
+  <%= will_paginate  previous_label: '&lt 前へ', next_label: '次へ &gt' %>
+</div>

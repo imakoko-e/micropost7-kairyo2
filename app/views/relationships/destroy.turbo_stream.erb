@@ -1,0 +1,8 @@
+<%# フォローを解除したとき：「解除」のボタンをフォローのボタンに戻し、フォロワーの人数を更新する %>
+
+<%= turbo_stream.update "follow_form" do %>
+  <%= render partial: "users/follow" %>
+<% end %>
+<%= turbo_stream.update "followers" do %>
+  <%= @user.followers.count %>
+<% end %>

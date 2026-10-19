@@ -1,0 +1,14 @@
+<li>
+  <%= gravatar_for user, size: 50 %>
+  <%= link_to user.name, user %>
+  <%# メールの確認がまだのユーザーは、管理者にだけ（無効）と表示する %>
+  <% if current_user.admin? && !user.confirmed_at %>
+    |（無効）
+  <% end %>
+  <%# 管理者には、自分以外のユーザーの削除リンクを出す（確認のダイアログを出してから DELETE を送る） %>
+  <% if current_user.admin? && !current_user?(user) %>
+    |<%= link_to "削除", destroy_user_path(user), 
+        data: { turbo_confirm: "本当に削除してよいですか？", turbo_method: :delete }
+     %>
+  <% end %>
+</li>

@@ -1,0 +1,13 @@
+/*
+ * このファイルはアセットパイプラインのマニフェストとして残す。
+ * スタイルの実体は app/assets/tailwind/application.css に移行済み。
+ *
+ * 削除した内容（Tailwind CSS への移行先）:
+ *   - Bootstrap 変数（$enable-gradients 等）           → 不要（Tailwind に機能なし）
+ *   - @import "bootstrap"                              → Gem 削除により不要
+ *   - @import "page", @import "custom"                 → tailwind/application.css に統合
+ *   - @mixin box_sizing                                → Tailwind の box-border ユーティリティで代替
+ *   - @extend .is-invalid                              → tailwind.css の .field_with_errors に定義
+ *   - body/footer/header等のカスタムスタイル            → tailwind/application.css に移植済み
+ *   - .microposts / .stats / .users / .gravatar 等     → tailwind/application.css の @layer components に定義済み
+ */

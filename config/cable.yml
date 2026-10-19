@@ -1,0 +1,13 @@
+test:
+  adapter: test
+
+development:
+  adapter: async
+  channel_prefix: micropost7_development
+
+production:
+  adapter: redis
+  # REDIS_URL は .env で指定する。未設定でも ERB 評価で落ちないよう ENV[] で読む
+  # （cable.yml は全環境分が ERB 評価されるため、開発起動時も production 行が実行される）
+  url: <%= ENV["REDIS_URL"] %>
+  channel_prefix: micropost7_production

@@ -1,0 +1,22 @@
+# PostgreSQL（本番）のイメージ。証明書を読めるよう、postgres ユーザーを ssl-cert グループに入れる
+FROM postgres:17
+
+# ビルド時に GID を受け取る（デフォルトは 1001）
+ARG SSL_CERT_GID=1001
+
+# (1) ホストの ssl-cert グループと同じ GID を指定
+#   $ getent group ssl-cert     # GIDを求める
+#       ssl-cert:x:1001:
+# (2) postgres ユーザーを ssl-cert に追加
+#     既に ssl-cert グループがあれば GID を合わせ、無ければ作る
+
+RUN \
+    # ── 既に group があれば何もしない ──
+    if getent group ssl-cert >/dev/null 2>&1; then \
+        echo "●● 既存の ssl-cert グループを GID ${SSL_CERT_GID} に変更…"; \
+        groupmod -g "${SSL_CERT_GID}" ssl-cert; \
+    else \
+        echo "●● ssl-cert グループを GID ${SSL_CERT_GID} で作成･････"; \
+        groupadd -g "${SSL_CERT_GID}" ssl-cert; \
+    fi \
+    && usermod -a -G ssl-cert postgres

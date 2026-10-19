@@ -1,0 +1,134 @@
+<%# 入力内容の確認（edit → confirm → update の間）。メールアドレスは表示しない %>
+<div class="container mt-6 pb-10">
+  <h2 class="mb-2 text-center">入力情報の確認</h2>
+  <p class="text-center text-sm text-gray-500 mb-6">
+    以下の内容で保存します。よろしければ「保存する」を押してください。
+  </p>
+
+  <div class="space-y-6">
+
+    <%# ========================================================
+        セクション 1：基本情報（メールアドレスなし）
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-person-fill profile-section-icon"></i>
+          <span class="profile-section-name">基本情報</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">氏名</dt>
+            <dd><%= @user.name.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">氏名カナ</dt>
+            <dd><%= @user.name_kana.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">性別</dt>
+            <dd>
+              <%= case @user.gender.to_i
+                  when 1 then "男"
+                  when 2 then "女"
+                  when 3 then "回答しない"
+                  else        "未設定"
+                  end %>
+            </dd>
+
+            <dt class="font-semibold text-gray-600">生年月日</dt>
+            <dd>
+              <% if @user.birthday.present? %>
+                <% age = (Date.today.strftime('%Y%m%d').to_i - @user.birthday.strftime('%Y%m%d').to_i) / 10000 %>
+                <%= @user.birthday.strftime("%Y年 %-m月 %-d日") %>　（<%= age %>歳）
+              <% else %>
+                未設定
+              <% end %>
+            </dd>
+
+          </dl>
+        </div>
+      </div>
+    </div>
+
+
+    <%# ========================================================
+        セクション 2：連絡先・住所
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-geo-alt-fill profile-section-icon"></i>
+          <span class="profile-section-name">連絡先・住所</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">電話番号</dt>
+            <dd>固定：<%= @user.fixed_phone.presence || "未設定" %>　　携帯：<%= @user.mobile_phone.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">住所</dt>
+            <dd>
+              <% if @user.postal_code.present? %>
+                <span class="text-gray-500 text-sm">〒</span><%= @user.postal_code %><br>
+              <% end %>
+              <%= @user.address.presence || "未設定" %>
+            </dd>
+
+          </dl>
+        </div>
+      </div>
+    </div>
+
+
+    <%# ========================================================
+        セクション 3：プロフィール
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-star-fill profile-section-icon"></i>
+          <span class="profile-section-name">プロフィール</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">趣味</dt>
+            <dd><%= @user.hobbies.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">特技</dt>
+            <dd><%= @user.special_skills.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">備考</dt>
+            <dd><%= simple_format(@user.note.to_s) %></dd>
+
+          </dl>
+        </div>
+      </div>
+    </div>
+
+  </div><%# /space-y-6 %>
+
+
+  <%# ボタン行：変更に戻る ＋ 保存する
+      保存は、confirm で取っておいた元の送信値（@submitted_params）を隠しフィールドにして PATCH profile_path へ送る。
+      valid? の後に仮想属性（生年月日の年など）が消えることがあるため、@user ではなくこちらを使う %>
+  <%= form_with url: profile_path, method: :patch, local: true do %>
+    <% @submitted_params.each do |key, value| %>
+      <%= hidden_field_tag "user[#{key}]", value %>
+    <% end %>
+
+    <div class="flex flex-col-reverse md:flex-row justify-center gap-3 mt-6">
+      <%= link_to "変更に戻る", edit_profile_path,
+          class: "btn btn-outline-secondary md:w-36 text-center", role: "button" %>
+      <%= submit_tag "保存する", class: "btn btn-primary md:w-40" %>
+    </div>
+
+  <% end %>
+
+</div>

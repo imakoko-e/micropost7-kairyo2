@@ -1,0 +1,41 @@
+<% provide(:title, 'Sign up') %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">ユーザー登録</h2>
+
+  <div class="flex justify-center">
+    <div class="w-full md:w-1/2">
+      <%# Turbo を使わずに送信する（Devise の確認メールを送る流れに合わせるため） %>
+      <%= form_with(model: @user, url: user_registration_path, data: { turbo: false }, builder: ApplicationHelper::CustomFormBuilder) do |f| %>
+        <%= render "devise/shared/error_messages", resource: f.object %>
+
+        <%# 姓・名を横に並べる %>
+        <div class="flex gap-2">
+          <div class="w-1/2">
+            <%= f.label :last_name, "氏名（姓）" %>
+            <%= f.text_field :last_name, autofocus: true, autocomplete: "family-name", class: 'form-control', placeholder: "山田" %>
+          </div>
+          <div class="w-1/2">
+            <%= f.label :first_name, "（名）" %>
+            <%= f.text_field :first_name, autocomplete: "given-name", class: 'form-control', placeholder: "太郎" %>
+          </div>
+        </div>
+
+        <%= f.label :email %>
+        <%= f.email_field :email, autocomplete: "email", class: 'form-control' %>
+
+        <%= f.label :password, "パスワード（6文字以上）" %>
+        <%= f.password_field :password, autocomplete: "new-password", class: 'form-control' %>
+
+        <%= f.label :password_confirmation, "パスワード確認（もう一度）" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: 'form-control' %>
+
+        <div class="mt-6 flex justify-center">
+          <%= f.submit "登録", class: "btn btn-primary min-w-40 px-6 text-center" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render "devise/shared/links" %>
+</div>

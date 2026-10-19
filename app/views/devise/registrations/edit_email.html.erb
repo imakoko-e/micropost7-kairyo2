@@ -1,0 +1,32 @@
+<% provide(:title, "メールアドレスの変更") %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">メールアドレスの変更</h2>
+
+  <div class="flex justify-center">
+    <div class="w-full md:w-1/2">
+      <%# 送信先は registrations#update_email（独自のルート） %>
+      <%= form_with model: @user, url: account_email_path, method: :patch, local: true do |f| %>
+        <%= render "devise/shared/error_messages", resource: @user %>
+
+        <div class="mb-3">
+          <%= f.label :email, "新しいメールアドレス" %>
+          <%= f.email_field :email, class: "form-control", autocomplete: "email" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :current_password, "現在のパスワード（確認用）" %>
+          <%= f.password_field :current_password, class: "form-control", autocomplete: "current-password" %>
+          <div class="form-text">安全のため、現在のパスワードの入力が必要です。</div>
+        </div>
+
+        <%# ボタン行：小さい画面は縦2段（更新が上）、md 以上は横並び %>
+        <div class="mt-6 flex flex-col-reverse md:flex-row justify-center gap-4">
+          <%= link_to "キャンセル", profile_path, class: "btn btn-outline-secondary md:w-40 text-center", role: "button" %>
+          <%= f.submit "更新する", class: "btn btn-primary md:w-40" %>
+        </div>
+
+      <% end %>
+    </div>
+  </div>
+</div>

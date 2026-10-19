@@ -1,0 +1,32 @@
+<% provide(:title, 'Reset password') %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">パスワードの変更</h2>
+
+  <div class="flex justify-center">
+    <div class="w-full md:w-1/2">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }, builder: ApplicationHelper::CustomFormBuilder) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <%# 再設定のトークンを隠しフィールドで送る %>
+        <%= f.hidden_field :reset_password_token %>
+
+        <%= f.label :password, "新しいパスワード" %>
+        <% if @minimum_password_length %>
+          <em>(<%= @minimum_password_length %> 文字以上)</em><br>
+        <% end %>
+        <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: 'form-control' %>
+
+        <%= f.label :password_confirmation, "新しいパスワード確認" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: 'form-control' %>
+
+        <%# ボタン行：小さい画面は縦2段、md 以上は横並び %>
+        <div class="mt-6 flex flex-col-reverse md:flex-row justify-center gap-4">
+          <%= link_to "キャンセル", new_user_session_path, class: "btn btn-outline-secondary md:w-40 text-center", role: "button" %>
+          <%= f.submit "更新する", class: "btn btn-primary md:w-40" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render "devise/shared/links" %>
+</div>

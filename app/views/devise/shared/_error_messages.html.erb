@@ -1,0 +1,13 @@
+<% if resource.errors.any? %>
+  <div id="error_explanation" data-turbo-cache="false" class="alert-danger">
+    <%= resource.errors.count %> 件のエラーがあります
+  </div>
+<% end %>
+
+
+<% if notice %>
+  <p class="alert-success">【Devise通知】<%= notice %></p>
+<% end %>
+<% if alert %>
+  <p class="alert-danger">【Devise警告】<%= alert %></p>
+<% end %>

@@ -1,0 +1,21 @@
+<%# メールの確認を待つ画面。Stimulus の confirmation コントローラー（confirmation_controller.js）が
+    waiter_sig を持って Action Cable を購読し、確認が済んだら自動でログインして画面を移る %>
+
+<div class="container mt-6 pb-10"
+     data-controller="confirmation"
+     data-confirmation-waiter-sig-value="<%= @waiter_sig %>"
+     data-turbo-permanent>
+
+  <h2 class="mb-6 text-center">メール確認待機中</h2>
+
+  <div class="flex justify-center">
+    <div class="w-full md:w-2/3">
+      <p>ご登録ありがとうございます。確認用のメールを <strong><%= @user&.email %></strong> 宛に送信しました。</p>
+      <p class="mb-6">メール内のリンクをクリックすると、この画面が自動で更新され、登録が完了します。</p>
+
+      <%# 受け取った通知を JavaScript がここに表示する %>
+      <div data-confirmation-target="message" class="notice"></div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,121 @@
+# 本番用の compose（開発用は docker-compose.local.yml）
+services:             #servicesは各コンテナを定義
+
+  #■■ PostgreSQL 用サービス (コンテナ名: db)
+  db:                 #dbは1つのコンテナ名（１コンテナ１プロセス）
+    build:
+      context: .
+      dockerfile: Dockerfile.db     # Dockerfile.db をビルドする
+      args:
+        SSL_CERT_GID: 1001        # 本番環境の GID を指定する
+    networks:
+      - app_network  # カスタムネットワークに所属させることで、他コンテナとの名前解決が容易になります。
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data  # PostgreSQLのデータを永続化   ●バインドマウント(ローカルのフォルダーに保存)
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro     # PostgreSQL サーバーの メイン設定ファイル
+      - ./postgresql/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro             # ホストベース認証ルール定義ファイル
+
+      - /etc/localtime:/etc/localtime:ro          # ホストのタイムゾーン情報をマウント
+      # Let’s Encrypt の証明書（PostgreSQL の SSL 用）
+      - /etc/letsencrypt:/etc/letsencrypt:ro    # ホストの SSL 証明書のディレクトリがコンテナ内の同じパスに読み取り専用（ro）でマウント
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+    ports:                #portsは公開用のポートで、ホスト側とコンテナ側の両方のポートを指定します（ ホスト側:コンテナ側 ）
+      - "127.0.0.1:5432:5432"       # ホストのループバックだけに公開（外部からは不可）。インターネットには晒さず、SSH経由でだけ繋げる
+    restart: always         # OS起動時にコンテナを自動起動する
+    environment:          #environmentは環境変数を追加
+      # PostgreSQL の初期ユーザー名、パスワード、データベース名を設定
+      # DBの環境変数 .env.production から読む
+      POSTGRES_DB: ${POSTGRES_DB}               # database.ymlと名前を合わせる
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+      TZ: Asia/Tokyo                # 環境変数でタイムゾーンを設定
+
+  #■■ Redis サービス（Action Cable用）
+  redis:
+    image: redis:latest
+    # （コンテナ間で通信するだけなら ports は不要です）
+    # ports:
+    #   - "6379:6379"
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD}
+    networks:
+      - app_network  # 他のコンテナと名前で通信する
+    volumes:
+      - redis-data:/data
+    restart: always
+
+  #■■ Rails アプリケーション用サービス (コンテナ名: app)
+  app:                # appは1つのコンテナ名（１コンテナ１プロセス）
+    # 本番用の Dockerfile でビルドしたイメージ（Dockerfile の先頭のビルド方法を参照）
+    image: rails-app:latest
+    # Puma の設定ファイル（config/puma.rb）を読み込ませるため、-C で指定する
+    command: bundle exec puma -C config/puma.rb     # PumaをRailsアプリとして起動
+    depends_on:     # depends_onはサービス間の依存関係を指定。appコンテナ側からdbコンテナにdbの名前で接続できるようになる
+      - db          # app コンテナは db コンテナが起動してから開始
+      - redis       # 名前解決のため先にredisサービスを起動
+    networks:
+      - app_network
+    volumes:      #volumesではパスを指定するとDockerエンジンはボリュームを作成します
+      - bundle_cache:/usr/local/bundle  # gemのキャッシュをコンテナで共有（Docker ボリュームとして永続化 し、コンテナ削除後も gem を保持）
+      - ./storage_data:/app/storage     # 画像の保存場所（ホストの ./storage_data）
+
+      - public-data:/app/public   # RailsのpublicディレクトリをNginxコンテナと共有（=静的ファイル(コンパイル済みアセットなど)配信用）
+      - tmp-data:/app/tmp         # Puma用ソケットや一時ファイルをNginxコンテナと共有するボリューム
+      - sockets:/app/tmp/sockets  # UNIXソケット共有／Rails と Nginx の両方のコンテナで同じディレクトリをマウント
+    # ports・expose は無い。Nginx とは UNIX ソケット（tmp/sockets/puma.sock）で通信するので、TCP の 3000番は使わない
+    restart: always         # OS起動時、コンテナが停止した場合、コンテナを自動的に再起動します（本番運用時に有用）
+    env_file:         # 環境変数ファイルを読み込む
+      - .env.production
+    environment:      #environmentは環境変数を追加
+      # Docker 環境でアプリを実行の特定の環境変数を定義　=> development.rb の if 文で使用している
+      IN_DOCKER: true
+      RAILS_ENV: production
+      # 秘密の値（SECRET_KEY_BASE・RAILS_MASTER_KEY・DATABASE_URL・REDIS_URL・SMTP など）は .env.production に書く
+      # （変数の一覧は .env.production.example）
+      RAILS_SERVE_STATIC_FILES: "true"  # 静的ファイル（CSS/JS）配信を有効化
+    # コンテナの中で対話的に操作するとき（rails console など）のため
+    stdin_open: true   # コンテナ内での対話型シェルを利用可能にします
+    tty: true          # TTY を割り当て、ログ等の表示を見やすくします
+
+  #■■ Nginx 用サービス (コンテナ名: web)
+  web:
+    image: nginx:alpine        # 軽量な公式Nginxイメージを使用
+    ports:
+      - "80:80"     # HTTP        # ホストのポート80番をNginxコンテナの80番に割り当て（HTTP受け口）
+      - "443:443"   # HTTPS
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro    # ホストの SSL 証明書のディレクトリがコンテナ内の同じパスに読み取り専用（ro）でマウント
+      - ./nginx/production/nginx.conf:/etc/nginx/conf.d/default.conf:ro  # Nginx用の設定ファイル(nginx.conf)をホストからコンテナへマウント
+      - ./certbot/www:/var/www/certbot
+      - public-data:/app/public:ro   # RailsのpublicディレクトリをNginxコンテナと共有（静的ファイル配信用）
+      - tmp-data:/app/tmp            # Pumaのソケットファイル用。Nginxコンテナと共有
+      - sockets:/app/tmp/sockets     # UNIXソケット共有／Rails と Nginx の両方のコンテナで同じディレクトリをマウント
+    depends_on:
+      - app           # appコンテナ（Rails）が先に起動してからNginx起動。Rails 側の準備ができる前にリクエストを受けない
+    networks:
+      - app_network  # 他のコンテナと名前で通信する
+    restart: always         # OS起動時、コンテナが停止した場合、コンテナを自動的に再起動します（本番運用時に有用）
+# ネットワークの定義
+# カスタムネットワークを作成する理由:
+#   1. コンテナ間の通信をセグメント化し、ホスト側との分離を実現するため
+#   2. Docker の内部 DNS 機能を利用して、コンテナ名で接続できるようにするため
+networks:
+  app_network:
+    driver: bridge
+# 名前付きボリューム（バインドマウントはここには書かない）
+volumes:
+  bundle_cache:       # Gemのキャッシュ用
+  public-data:        # RailsのpublicディレクトリをNginxコンテナと共有（静的ファイル配信用）
+  tmp-data:           # Pumaのソケットファイル用。Nginxコンテナと共有
+  sockets:            # UNIXソケット共有／Rails と Nginx の両方のコンテナで同じディレクトリをマウント
+  redis-data:         # Redis のデータ

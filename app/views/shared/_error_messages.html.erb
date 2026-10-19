@@ -1,0 +1,6 @@
+<%# フォームのエラーの件数（項目ごとのメッセージは CustomFormBuilder が欄の下に出す） %>
+<% if object.errors.any? %>
+  <div id="error_explanation" class="alert-danger">
+    <%= object.errors.count %> 個のエラーがあります
+  </div>
+<% end %>

@@ -1,0 +1,108 @@
+<%# CSP で script-src に nonce を求めているので、インラインのスクリプトには nonce を付ける %>
+<script nonce="<%= content_security_policy_nonce %>">
+    document.addEventListener('DOMContentLoaded', function(){
+        // 「この画面を閉じる」ボタン（CSP で onclick が使えないため、ここで割り当てる）
+        const closeBtn = document.getElementById('closeWindowBtn');
+        if (closeBtn) closeBtn.addEventListener('click', function(){ window.close(); });
+
+        // 「トップメニューに戻る」ボタン
+        const goTopBtn = document.getElementById('goTopBtn');
+        if (goTopBtn) goTopBtn.addEventListener('click', function(){ location.href = '/'; });
+
+        const url = new URL(window.location.href);
+        const isPopup = url.searchParams.get('popup') === '1';
+
+        if (isPopup) {
+            // ポップアップ側だけ自動で閉じる
+            setTimeout(function(){ window.close(); }, 10000);
+            return;     // ポップアップでは再度openしない
+        }
+
+        // 元のページからは自動で開かない（開くと、この画面への GET が2回になったため）
+});
+
+</script>
+
+
+<div class="container flex justify-center items-center mt-4">
+  <div class="card w-full max-w-lg">
+    <div class="card-body text-center">
+
+      <%# タイトル %>
+      <div class="mb-4 mt-4">
+        <% if @type == 'success' %>
+          <i class="bi bi-envelope-check text-5xl text-green-500"></i>
+          <h3>📧 メールアドレス確認完了</h3>
+        <% else %>
+          <i class="bi bi-exclamation-circle text-5xl text-red-500"></i>
+          <h3>❗ メール確認ステータスエラー</h3>
+        <% end %>
+      </div>
+
+      <%# メッセージ %>
+
+      <div class="mb-4 text-left w-4/5 mx-auto">
+        <% if @type == 'success' %>
+          <small>
+            この画面は 10秒後に 自動で閉じます。<br>
+            画面を閉じて、メールアドレス確認をされた画面に戻りお手続きを進めてください。
+          </small>
+          <br>
+        <% end %>
+      </div>
+
+      <%# アイコン %>
+      <% if @type == 'success' %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" class="bi bi-envelope-check-fill" viewBox="0 0 16 16" style="color: #00ffff">
+          <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 4.697v4.974A4.5 4.5 0 0 0 12.5 8a4.5 4.5 0 0 0-1.965.45l-.338-.207z"/>
+          <path d="M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0m-1.993-1.679a.5.5 0 0 0-.686.172l-1.17 1.95-.547-.547a.5.5 0 0 0-.708.708l.774.773a.75.75 0 0 0 1.174-.144l1.335-2.226a.5.5 0 0 0-.172-.686"/>
+        </svg>
+      <% else %>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="72" height="72">
+          <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+          <path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16" style="color: red;">
+          <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+      <% end %>
+
+      <%# メッセージ %>
+      <h6 class="mb-5 mt-3">
+        <% if @type != 'success' %>
+          エラーコード：<%#= @code %>
+          <br>
+        <% end %>
+        <%= @message %>
+      </h6>
+
+      <%# 閉じるボタン
+          CSP で inline の onclick が禁止されるため、id を付けて下部のスクリプトで
+          addEventListener により挙動を割り当てる %>
+      <div class="flex flex-col gap-2">
+        <button type="button" id="closeWindowBtn" class="btn btn-primary w-full">
+          この画面を閉じる
+        </button>
+        <%# エラーのときだけ %>
+        <% if @type != 'success' %>
+          <button type="button" id="goTopBtn" class="btn btn-outline-secondary w-full">
+            トップメニューに戻る
+          </button>
+        <% end %>
+      </div>
+      <br>
+      <br>
+      <div class="mb-4 text-left w-4/5 mx-auto">
+        <% if @type == 'success' %>
+          <small>誤ってプラウザーを落とさないように注意してください。</small>
+          <br><br>
+          <small>環境によっては画面を閉じることができない場合がありますが、登録に進んでいただいて問題ありません。</small>
+          <br>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+

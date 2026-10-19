@@ -1,0 +1,267 @@
+<%# ユーザー情報の変更（ここから confirm → update と進む） %>
+<div class="container mt-6 pb-10" data-controller="address-lookup">
+  <h2 class="mb-6 text-center">
+    <%= params[:from] == "confirmation" ? "ユーザー情報の追加" : "ユーザー情報変更" %>
+  </h2>
+
+  <%# 送信先は confirm（検証を通れば確認画面へ）。Turbo を使わず、通常のフォームとして送る %>
+  <%= form_with(model: @user, url: confirm_profile_path, method: :post, local: true,
+                data: { turbo: false },
+                builder: ApplicationHelper::CustomFormBuilder) do |f| %>
+    <div class="space-y-6">
+
+      <%# ========================================================
+          セクション 1：基本情報
+          lg 以上は、左に見出し・右に入力欄を並べる
+      ======================================================== %>
+      <div class="card">
+        <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+          <%# 見出し（モバイル：上段・横並び／lg：左カラム・縦積み） %>
+          <div class="profile-section-head">
+            <i class="bi bi-person-fill profile-section-icon"></i>
+            <span class="profile-section-name">基本情報</span>
+          </div>
+
+          <%# フォームフィールド（モバイル：下段／lg：右カラム） %>
+          <div class="flex-1 pt-2 lg:pt-0">
+            <div class="profile-form-grid">
+
+              <%# 氏名 %>
+              <div class="profile-form-label">
+                氏名<span class="badge-required">必須</span>
+              </div>
+              <div class="flex gap-3">
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :last_name, "姓", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :last_name, class: "form-control", placeholder: "山田" %>
+                </div>
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :first_name, "名", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :first_name, class: "form-control", placeholder: "太郎" %>
+                </div>
+              </div>
+
+              <%# フリガナ %>
+              <div class="profile-form-label">
+                フリガナ<span class="badge-optional">任意</span>
+              </div>
+              <div class="flex gap-3">
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :last_name_kana, "セイ", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :last_name_kana, class: "form-control", placeholder: "ヤマダ" %>
+                </div>
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :first_name_kana, "メイ", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :first_name_kana, class: "form-control", placeholder: "タロウ" %>
+                </div>
+              </div>
+
+              <%# 性別 %>
+              <div class="profile-form-label">
+                性別<span class="badge-optional">任意</span>
+              </div>
+              <div class="flex gap-5 py-1">
+                <label class="form-check-inline">
+                  <%= f.radio_button :gender, 1, id: "gender_male", class: "form-check-input" %>
+                  <%= f.label :gender, "男", for: "gender_male", class: "form-check-label" %>
+                </label>
+                <label class="form-check-inline">
+                  <%= f.radio_button :gender, 2, id: "gender_female", class: "form-check-input" %>
+                  <%= f.label :gender, "女", for: "gender_female", class: "form-check-label" %>
+                </label>
+                <label class="form-check-inline">
+                  <%= f.radio_button :gender, 3, id: "gender_unspecified", class: "form-check-input" %>
+                  <%= f.label :gender, "回答しない", for: "gender_unspecified", class: "form-check-label" %>
+                </label>
+              </div>
+
+              <%# 生年月日 %>
+              <div class="profile-form-label">
+                生年月日<span class="badge-optional">任意</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= f.select :year_of_birth, (1910..Date.current.year).to_a.reverse,
+                             { include_blank: "選択" }, class: "form-select w-28" %>
+                <span class="text-sm text-gray-500">年</span>
+                <%= f.select :month_of_birth, (1..12).to_a,
+                             { include_blank: "選択" }, class: "form-select w-20" %>
+                <span class="text-sm text-gray-500">月</span>
+                <%= f.select :day_of_birth, (1..31).to_a,
+                             { include_blank: "選択" }, class: "form-select w-20" %>
+                <span class="text-sm text-gray-500">日</span>
+              </div>
+
+            </div><%# /profile-form-grid %>
+          </div><%# /flex-1 %>
+        </div><%# /card-body %>
+      </div><%# /card %>
+
+
+      <%# ========================================================
+          セクション 2：連絡先・住所
+      ======================================================== %>
+      <div class="card">
+        <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+          <div class="profile-section-head">
+            <i class="bi bi-geo-alt-fill profile-section-icon"></i>
+            <span class="profile-section-name">連絡先・住所</span>
+          </div>
+
+          <div class="flex-1 pt-2 lg:pt-0">
+            <div class="profile-form-grid">
+
+              <%# 電話番号 %>
+              <div class="profile-form-label">
+                電話番号<span class="badge-optional">任意</span>
+              </div>
+              <div class="flex gap-3">
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :fixed_phone, "固定", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :fixed_phone, class: "form-control", placeholder: "03-1234-5678" %>
+                </div>
+                <div class="flex items-center gap-1 flex-1">
+                  <%= f.label :mobile_phone, "携帯", class: "whitespace-nowrap text-xs text-gray-500" %>
+                  <%= f.text_field :mobile_phone, class: "form-control", placeholder: "090-1234-5678" %>
+                </div>
+              </div>
+
+              <%# 郵便番号 %>
+              <div class="profile-form-label">
+                郵便番号<span class="badge-optional">任意</span>
+              </div>
+              <div>
+                <div class="input-group w-56">
+                  <%= f.text_field :postal_code, class: "form-control",
+                      placeholder: "1234567",
+                      data: { "address-lookup-target": "postal" } %>
+                  <button class="btn btn-secondary whitespace-nowrap shrink-0"
+                          type="button"
+                          data-action="click->address-lookup#search">住所検索</button>
+                </div>
+                <div class="form-text">ハイフンなし7桁</div>
+              </div>
+
+              <%# 住所 %>
+              <div class="profile-form-label pt-1">
+                住所<span class="badge-optional">任意</span>
+              </div>
+              <div class="space-y-2">
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :prefecture, "都道府県", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.select :prefecture,
+                      options_for_select(@prefectures, @user.prefecture),
+                      { include_blank: "選択してください" },
+                      class: "form-select w-44",
+                      data: { "address-lookup-target": "pref" } %>
+                </div>
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :city, "市区町村", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.text_field :city, class: "form-control max-w-xs",
+                      data: { "address-lookup-target": "city" } %>
+                </div>
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :town, "町名", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.text_field :street_name, class: "form-control max-w-xs",
+                      data: { "address-lookup-target": "streetName" } %>
+                </div>
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :street_number, "番地", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.text_field :house_number, class: "form-control w-36" %>
+                </div>
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :building, "建物名", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.text_field :building_name, class: "form-control max-w-xs" %>
+                </div>
+
+                <div class="grid grid-cols-[4.5rem_1fr] items-center gap-x-2">
+                  <%= f.label :room_no, "部屋番号", class: "text-xs text-gray-500 whitespace-nowrap" %>
+                  <%= f.text_field :apartment_number, class: "form-control w-28" %>
+                </div>
+
+              </div><%# /住所 space-y-2 %>
+
+            </div><%# /profile-form-grid %>
+          </div><%# /flex-1 %>
+        </div><%# /card-body %>
+      </div><%# /card %>
+
+
+      <%# ========================================================
+          セクション 3：プロフィール
+      ======================================================== %>
+      <div class="card">
+        <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+          <div class="profile-section-head">
+            <i class="bi bi-star-fill profile-section-icon"></i>
+            <span class="profile-section-name">プロフィール</span>
+          </div>
+
+          <div class="flex-1 pt-2 lg:pt-0">
+            <div class="profile-form-grid">
+
+              <%# 趣味 %>
+              <div class="profile-form-label">
+                趣味<span class="badge-optional">任意</span>
+              </div>
+              <%= f.text_field :hobbies, class: "form-control",
+                  placeholder: "旅行、写真 など" %>
+
+              <%# 特技 %>
+              <div class="profile-form-label">
+                特技<span class="badge-optional">任意</span>
+              </div>
+              <%= f.text_field :special_skills, class: "form-control",
+                  placeholder: "プレゼン、動画編集 など" %>
+
+              <%# 備考 %>
+              <div class="profile-form-label pt-2">
+                備考<span class="badge-optional">任意</span>
+              </div>
+              <%= f.text_area :note, rows: 4, class: "form-control",
+                  placeholder: "連絡希望時間帯など" %>
+
+            </div><%# /profile-form-grid %>
+          </div><%# /flex-1 %>
+        </div><%# /card-body %>
+      </div><%# /card %>
+
+
+      <%# ボタン行：キャンセル（一覧へ戻る）と入力確認へ進む %>
+      <div class="flex flex-col-reverse md:flex-row justify-center gap-3 mt-2">
+        <%= link_to "キャンセル", root_path,
+            class: "btn btn-outline-secondary md:w-36 text-center", role: "button" %>
+        <%= f.submit "入力情報の確認", class: "btn btn-primary md:w-44" %>
+      </div>
+
+    </div><%# /space-y-6 %>
+  <% end %>
+
+  <hr class="my-8">
+
+  <div class="flex items-center gap-4">
+    <%= button_to "アカウントの削除", destroy_user_path(@user),
+                  data: { turbo_confirm: "本当に削除してよろしいですか？" },
+                  method: :delete,
+                  class: "btn btn-danger" %>
+    <%= link_to "戻る", :back, class: "text-sm" %>
+  </div>
+
+  <hr class="my-6">
+
+  <div class="alert-info">
+    メールアドレスやパスワードの変更は
+    <%= link_to "こちら（メールアドレスの変更）", edit_email_path(section: "email", anchor: "change-email") %>
+    /
+    <%= link_to "こちら（パスワードの変更）", edit_password_path(section: "password", anchor: "change-password") %>
+    から実施してください。
+  </div>
+
+</div>

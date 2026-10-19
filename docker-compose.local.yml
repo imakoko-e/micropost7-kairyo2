@@ -1,0 +1,53 @@
+# docker-compose.local.yml
+# 開発用。本番用の docker-compose.yml とは別のファイル。
+# .env に COMPOSE_FILE=docker-compose.local.yml を書くと、`docker compose up` だけでこの構成が選ばれる。
+# Redis は入れない（開発では Action Cable は async、セッションは Cookie）。
+
+# プロジェクト名を固定する（フォルダを移しても、DB のボリュームが同じ名前のまま見える）
+name: micropost7-kairyo2
+
+services:
+  db:
+    image: postgres:17                  # 本番の Dockerfile.db と同じ版
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?.env に DB_PASSWORD を書いてください}
+      POSTGRES_DB: my_database_development
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"   # 127.0.0.1 を必ず付ける（付けないと外から届く）
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    command: bin/dev
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle         # gem はボリュームに置く（ビルドし直しても消えない）
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true                     # tailwindcss:watch が標準入力の終わりで止まらないように
+    tty: true
+
+volumes:
+  db_data:
+  bundle:

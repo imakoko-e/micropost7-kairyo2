@@ -1,0 +1,122 @@
+<%# ユーザー情報の一覧 %>
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">ユーザー情報一覧</h2>
+
+  <div class="space-y-6">
+
+    <%# ========================================================
+        セクション 1：基本情報（メールアドレスを含む）
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-person-fill profile-section-icon"></i>
+          <span class="profile-section-name">基本情報</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">メールアドレス</dt>
+            <dd><%= @user.email %></dd>
+
+            <dt class="font-semibold text-gray-600">氏名</dt>
+            <dd><%= @user.name.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">氏名カナ</dt>
+            <dd><%= @user.name_kana.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">性別</dt>
+            <dd>
+              <%= case @user.gender
+                  when 1 then "男"
+                  when 2 then "女"
+                  when 3 then "回答しない"
+                  else        "未設定"
+                  end %>
+            </dd>
+
+            <dt class="font-semibold text-gray-600">生年月日</dt>
+            <dd>
+              <% if @user.birthday.present? %>
+                <% age = (Date.today.strftime('%Y%m%d').to_i - @user.birthday.strftime('%Y%m%d').to_i) / 10000 %>
+                <%= @user.birthday.strftime("%Y年 %-m月 %-d日") %>　（<%= age %>歳）
+              <% else %>
+                未設定
+              <% end %>
+            </dd>
+
+          </dl>
+        </div><%# /flex-1 %>
+      </div><%# /card-body %>
+    </div><%# /card %>
+
+
+    <%# ========================================================
+        セクション 2：連絡先・住所
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-geo-alt-fill profile-section-icon"></i>
+          <span class="profile-section-name">連絡先・住所</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">電話番号</dt>
+            <dd>固定：<%= @user.fixed_phone.presence || "未設定" %>　　携帯：<%= @user.mobile_phone.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">住所</dt>
+            <dd>
+              <% if @user.postal_code.present? %>
+                <span class="text-gray-500 text-sm">〒</span><%= @user.postal_code %><br>
+              <% end %>
+              <%= @user.address.presence || "未設定" %>
+            </dd>
+
+          </dl>
+        </div><%# /flex-1 %>
+      </div><%# /card-body %>
+    </div><%# /card %>
+
+
+    <%# ========================================================
+        セクション 3：プロフィール
+    ======================================================== %>
+    <div class="card">
+      <div class="card-body lg:flex lg:gap-8 lg:items-start">
+
+        <div class="profile-section-head">
+          <i class="bi bi-star-fill profile-section-icon"></i>
+          <span class="profile-section-name">プロフィール</span>
+        </div>
+
+        <div class="flex-1 pt-2 lg:pt-0">
+          <dl class="grid grid-cols-[8rem_1fr] gap-y-3 gap-x-4">
+
+            <dt class="font-semibold text-gray-600">趣味</dt>
+            <dd><%= @user.hobbies.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">特技</dt>
+            <dd><%= @user.special_skills.presence || "未設定" %></dd>
+
+            <dt class="font-semibold text-gray-600">備考</dt>
+            <dd><%= simple_format(@user.note.to_s) %></dd>
+
+          </dl>
+        </div><%# /flex-1 %>
+      </div><%# /card-body %>
+    </div><%# /card %>
+
+  </div><%# /space-y-6 %>
+
+  <%# OK ボタン %>
+  <div class="mt-6 flex justify-center">
+    <%= link_to "OK", root_path, class: "btn btn-primary w-32 text-center" %>
+  </div>
+
+</div>

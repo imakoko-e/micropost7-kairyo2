@@ -1,0 +1,32 @@
+<%# ユーザーのページ（プロフィールと投稿一覧） %>
+<% provide(:title, @user.name) %>
+
+<div class="container mt-6 pb-10">
+  <h2 class="mb-6 text-center">投稿一覧</h2>
+
+  <div class="flex flex-wrap">
+    <aside class="w-full md:w-1/3 pr-4">
+      <section class="text-center md:text-left">
+        <%= gravatar_for @user %>
+        <p class="mt-2 text-xl font-bold"><%= @user.name %></p>
+      </section>
+      <%# フォロー・フォロワーの人数 %>
+      <section class="stats mt-4">
+        <%= render 'shared/stats' %>
+      </section>
+    </aside>
+
+    <div class="w-full md:w-2/3">
+      <%# フォローのボタン %>
+      <%= render 'follow_form' if user_signed_in? %>
+      <%# 投稿一覧 %>
+      <% if @user.microposts.any? %>
+        <h3 class="mt-4 mb-3">投稿数（ <%= @user.microposts.count %> ）</h3>
+        <ol class="microposts">
+          <%= render @microposts %>
+        </ol>
+        <%= will_paginate @microposts, previous_label: '&lt 前へ', next_label: '次へ &gt' %>
+      <% end %>
+    </div>
+  </div>
+</div>
